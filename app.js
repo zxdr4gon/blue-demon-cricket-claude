@@ -13,7 +13,7 @@ const SHEET_CONFIG = {
   },
   "2025-26": {
     batting: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=1041989768&single=true&output=csv",
-    bowling: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=1051296080&single=true&output=csv", 
+    bowling: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=1051296080&single=true&output=csv",
     matches: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=226347194&single=true&output=csv"
   }
 };
@@ -62,10 +62,27 @@ const state = {
 
 /* ---------- 3. CSV FETCH + NORMALIZE ---------- */
 
-function fetchCsv(url) {
+async function fetchCsv(url) {
+  // Fetch the raw text ourselves (rather than letting PapaParse's built-in
+  // downloader do it) so we get clear, real error messages — including CORS
+  // failures — instead of PapaParse's generic download error.
+  let response;
+  try {
+    response = await fetch(url, { cache: "no-store" });
+  } catch (networkErr) {
+    throw new Error(
+      `Network/CORS error fetching CSV. Verify the sheet is published via File > Share > Publish to web (not just "Share"), and that the link is reachable. (${networkErr.message})`
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(`Sheet returned HTTP ${response.status} ${response.statusText}`);
+  }
+
+  const csvText = await response.text();
+
   return new Promise((resolve, reject) => {
-    Papa.parse(url, {
-      download: true,
+    Papa.parse(csvText, {
       skipEmptyLines: "greedy",
       complete: (results) => resolve(results.data || []),
       error: (err) => reject(err)
@@ -83,10 +100,16 @@ function normalizeRows(rawRows, type) {
 
   let rows = rawRows.slice();
 
-  // Quirk #2: blank leading "Column A" padding — check first data-ish row.
-  const probeRow = rows[0];
-  if (probeRow && probeRow[0] === "") {
-    rows = rows.map((r) => r.slice(1));
+  // Quirk #2: blank leading padding column(s). Some sheets have one blank
+  // "Column A", others have more than one — strip as many leading all-blank
+  // columns as are present, based on the header row.
+  let leadingBlankCount = 0;
+  const probeRow = rows[0] || [];
+  while (leadingBlankCount < probeRow.length && (probeRow[leadingBlankCount] || "").toString().trim() === "") {
+    leadingBlankCount++;
+  }
+  if (leadingBlankCount > 0) {
+    rows = rows.map((r) => r.slice(leadingBlankCount));
   }
 
   // First remaining row is the header row.
@@ -694,10 +717,11 @@ async function refreshAllData() {
     renderVsComparison();
     setLoadStatus("done");
   } catch (err) {
-    console.error(err);
+    console.error("BDC load error:", err);
+    const detail = (err && (err.message || err.statusText)) || (typeof err === "string" ? err : "Unknown error");
     setLoadStatus(
       "error",
-      "Couldn't load live sheet data. Check that the Google Sheet CSV links in SHEET_CONFIG are published correctly."
+      `Couldn't load live sheet data (${detail}). Open the browser console for details — this is usually a CORS issue with the published CSV link, or a mismatched header name.`
     );
   }
 }
