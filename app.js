@@ -35,9 +35,13 @@ const NUMERIC_COLS = new Set([
   "HS", "Catches", "Wickets", "Overs", "Economy"
 ]);
 
+const SEASON_STORAGE_KEY = "bdc-season";
+
 /* ---------- 2. STATE ---------- */
 const state = {
-  season: Object.keys(SHEET_CONFIG)[0],
+  season: localStorage.getItem(SEASON_STORAGE_KEY) && SHEET_CONFIG[localStorage.getItem(SEASON_STORAGE_KEY)]
+    ? localStorage.getItem(SEASON_STORAGE_KEY)
+    : Object.keys(SHEET_CONFIG)[0],
   data: {
     batting: [],
     bowling: [],
@@ -57,6 +61,10 @@ const state = {
     runs: null,
     wickets: null,
     results: null
+  },
+  elite: {
+    batting: new Set(),
+    bowling: new Set()
   }
 };
 
@@ -171,14 +179,42 @@ async function loadSeasonData(season) {
   state.data.matches = normalizeRows(matchesRaw, "matches");
 }
 
-/* ---------- 4. ELITE BADGE LOGIC ---------- */
+/* ---------- 4. ELITE BADGE LOGIC ----------
+   Only the top 2 qualifying batters and top 2 qualifying bowlers per season
+   get the elite fire badge, so it stays a meaningful highlight rather than
+   a common tag. */
+
+function computeEliteSets() {
+  const battingCandidates = state.data.batting
+    .filter((row) => row["HS"] >= 50 || row["S/R"] >= 140)
+    .slice()
+    .sort((a, b) => {
+      if (b["HS"] !== a["HS"]) return b["HS"] - a["HS"];
+      return b["S/R"] - a["S/R"];
+    })
+    .slice(0, 2)
+    .map((row) => row["Player"]);
+
+  const bowlingCandidates = state.data.bowling
+    .filter((row) => row["Wickets"] >= 3)
+    .slice()
+    .sort((a, b) => {
+      if (b["Wickets"] !== a["Wickets"]) return b["Wickets"] - a["Wickets"];
+      return a["Economy"] - b["Economy"];
+    })
+    .slice(0, 2)
+    .map((row) => row["Player"]);
+
+  state.elite.batting = new Set(battingCandidates);
+  state.elite.bowling = new Set(bowlingCandidates);
+}
 
 function isEliteBatter(row) {
-  return row["HS"] >= 50 || row["S/R"] >= 140;
+  return state.elite.batting.has(row["Player"]);
 }
 
 function isEliteBowler(row) {
-  return row["Wickets"] >= 3;
+  return state.elite.bowling.has(row["Player"]);
 }
 
 function eliteBadge(row, type) {
@@ -673,11 +709,12 @@ function initModal() {
 function initSeasonSelect() {
   const sel = document.getElementById("seasonSelect");
   sel.innerHTML = Object.keys(SHEET_CONFIG)
-    .map((s) => `<option value="${s}">${s}</option>`)
+    .map((s) => `<option value="${s}">${s} Season</option>`)
     .join("");
   sel.value = state.season;
   sel.addEventListener("change", async (e) => {
     state.season = e.target.value;
+    localStorage.setItem(SEASON_STORAGE_KEY, state.season);
     await refreshAllData();
   });
 }
@@ -705,10 +742,14 @@ function setLoadStatus(mode, message) {
 
 /* ---------- 13. MASTER REFRESH ---------- */
 
-async function refreshAllData() {
-  setLoadStatus("loading", `Loading ${state.season} season data…`);
+const AUTO_REFRESH_MS = 60 * 1000; // poll the sheet every 60 seconds
+
+async function refreshAllData(opts = {}) {
+  const silent = !!opts.silent;
+  if (!silent) setLoadStatus("loading", `Loading ${state.season} season data…`);
   try {
     await loadSeasonData(state.season);
+    computeEliteSets();
     renderTable("batting");
     renderTable("bowling");
     renderTable("matches");
@@ -719,11 +760,26 @@ async function refreshAllData() {
   } catch (err) {
     console.error("BDC load error:", err);
     const detail = (err && (err.message || err.statusText)) || (typeof err === "string" ? err : "Unknown error");
-    setLoadStatus(
-      "error",
-      `Couldn't load live sheet data (${detail}). Open the browser console for details — this is usually a CORS issue with the published CSV link, or a mismatched header name.`
-    );
+    // Don't blast the user with an error banner on a silent background poll —
+    // only surface it for an explicit/initial load. Just log it otherwise.
+    if (!silent) {
+      setLoadStatus(
+        "error",
+        `Couldn't load live sheet data (${detail}). Open the browser console for details — this is usually a CORS issue with the published CSV link, or a mismatched header name.`
+      );
+    }
   }
+}
+
+function initAutoRefresh() {
+  setInterval(() => refreshAllData({ silent: true }), AUTO_REFRESH_MS);
+  // Also refresh whenever the tab regains focus/visibility, so stale
+  // background data doesn't linger if someone leaves the tab open.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      refreshAllData({ silent: true });
+    }
+  });
 }
 
 /* ---------- 14. INIT ---------- */
@@ -736,4 +792,5 @@ document.addEventListener("DOMContentLoaded", () => {
   initSeasonSelect();
   initVsMode();
   refreshAllData();
+  initAutoRefresh();
 });

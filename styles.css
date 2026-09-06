@@ -56,8 +56,11 @@ h1, h2, h3, .title, .bdc-brand-text strong {
   gap: 0.6rem;
 }
 
-.bdc-logo {
-  font-size: 1.6rem;
+.bdc-logo-img {
+  height: 32px;
+  width: 32px;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 .bdc-brand-text {
@@ -93,10 +96,32 @@ h1, h2, h3, .title, .bdc-brand-text strong {
   background-color: #fff;
 }
 
+.bdc-season-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bdc-season-label {
+  color: #cfe0fb;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .bdc-season-select select {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--blue-950);
+  border-color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+}
+
+.bdc-season-select select:focus {
+  border-color: var(--accent);
+}
+
+.bdc-season-select .select::after {
+  border-color: var(--blue-950) !important;
 }
 
 .bdc-theme-toggle {
