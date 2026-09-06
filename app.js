@@ -7,14 +7,14 @@
    File > Share > Publish to web > select sheet/tab > CSV.                    */
 const SHEET_CONFIG = {
   "2026-27": {
-    batting: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAMPLE_2627_BATTING/pub?gid=0&single=true&output=csv",
-    bowling: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAMPLE_2627_BOWLING/pub?gid=0&single=true&output=csv",
-    matches: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAMPLE_2627_MATCHES/pub?gid=0&single=true&output=csv"
+    batting: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=960895682&single=true&output=csv",
+    bowling: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=1022493287&single=true&output=csv",
+    matches: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=1521760675&single=true&output=csv"
   },
   "2025-26": {
-    batting: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAMPLE_2526_BATTING/pub?gid=0&single=true&output=csv",
-    bowling: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAMPLE_2526_BOWLING/pub?gid=0&single=true&output=csv",
-    matches: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSAMPLE_2526_MATCHES/pub?gid=0&single=true&output=csv"
+    batting: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=1041989768&single=true&output=csv",
+    bowling: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=1051296080&single=true&output=csv", 
+    matches: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQXsO-A29-HMU5T5v3lW6v474irClAhDXXE3NcXXkJm4r77z0lQJiG2xEoLR9kZJmreiIwXGNxfFR58/pub?gid=226347194&single=true&output=csv"
   }
 };
 
