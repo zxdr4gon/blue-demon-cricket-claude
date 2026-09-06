@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blue Demon Cricket | Maine East</title>
+
+<!-- Bulma CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+<!-- Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar bdc-navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item bdc-brand" href="#top">
+        <span class="bdc-logo">🔱</span>
+        <span class="bdc-brand-text">
+          <strong>Blue Demon Cricket</strong>
+          <small>Maine East</small>
+        </span>
+      </a>
+      <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false" id="navBurger">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    </div>
+    <div id="navMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" data-nav="dashboard">Dashboard</a>
+        <a class="navbar-item" data-nav="batting">Batting</a>
+        <a class="navbar-item" data-nav="bowling">Bowling</a>
+        <a class="navbar-item" data-nav="matches">Matches</a>
+        <a class="navbar-item" data-nav="vs">VS Mode</a>
+      </div>
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="select is-small bdc-season-select">
+            <select id="seasonSelect"></select>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <button class="button is-small bdc-theme-toggle" id="themeToggle" title="Toggle dark mode">
+            <span id="themeIcon">🌙</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="top"></div>
+
+<!-- HERO -->
+<section class="hero bdc-hero">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <p class="bdc-hero-eyebrow">Maine East Athletics</p>
+      <h1 class="title bdc-hero-title">Blue Demon Cricket</h1>
+      <p class="subtitle bdc-hero-subtitle">Live season stats, player leaderboards &amp; match results</p>
+      <div id="loadStatus" class="bdc-load-status">
+        <span class="bdc-spinner"></span> Loading season data…
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="container bdc-main">
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="bdc-section">
+    <h2 class="bdc-section-title">Season Dashboard</h2>
+    <div class="columns is-multiline">
+      <div class="column is-4-desktop is-12-mobile">
+        <div class="box bdc-card">
+          <h3 class="bdc-card-title">Top 5 Run Scorers</h3>
+          <div class="bdc-chart-wrap"><canvas id="runsChart"></canvas></div>
+        </div>
+      </div>
+      <div class="column is-4-desktop is-12-mobile">
+        <div class="box bdc-card">
+          <h3 class="bdc-card-title">Top 5 Wicket Takers</h3>
+          <div class="bdc-chart-wrap"><canvas id="wicketsChart"></canvas></div>
+        </div>
+      </div>
+      <div class="column is-4-desktop is-12-mobile">
+        <div class="box bdc-card">
+          <h3 class="bdc-card-title">Match Results</h3>
+          <div class="bdc-chart-wrap"><canvas id="resultsChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BATTING -->
+  <section id="batting" class="bdc-section">
+    <div class="bdc-section-head">
+      <h2 class="bdc-section-title">Batting Stats</h2>
+      <input class="input bdc-search" type="text" placeholder="Search players…" data-search="batting">
+    </div>
+    <div class="table-container bdc-table-container">
+      <table class="table is-fullwidth is-striped is-hoverable bdc-table" id="battingTable">
+        <thead><tr id="battingHead"></tr></thead>
+        <tbody id="battingBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- BOWLING -->
+  <section id="bowling" class="bdc-section">
+    <div class="bdc-section-head">
+      <h2 class="bdc-section-title">Bowling Stats</h2>
+      <input class="input bdc-search" type="text" placeholder="Search players…" data-search="bowling">
+    </div>
+    <div class="table-container bdc-table-container">
+      <table class="table is-fullwidth is-striped is-hoverable bdc-table" id="bowlingTable">
+        <thead><tr id="bowlingHead"></tr></thead>
+        <tbody id="bowlingBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MATCHES -->
+  <section id="matches" class="bdc-section">
+    <div class="bdc-section-head">
+      <h2 class="bdc-section-title">Match Results</h2>
+      <input class="input bdc-search" type="text" placeholder="Search matches…" data-search="matches">
+    </div>
+    <div class="table-container bdc-table-container">
+      <table class="table is-fullwidth is-striped is-hoverable bdc-table" id="matchesTable">
+        <thead><tr id="matchesHead"></tr></thead>
+        <tbody id="matchesBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- VS MODE -->
+  <section id="vs" class="bdc-section">
+    <h2 class="bdc-section-title">VS Mode — Player Comparison</h2>
+    <div class="bdc-vs-picker">
+      <div class="select bdc-vs-select">
+        <select id="vsPlayerA"><option value="">Select Player A</option></select>
+      </div>
+      <div class="bdc-vs-versus">VS</div>
+      <div class="select bdc-vs-select">
+        <select id="vsPlayerB"><option value="">Select Player B</option></select>
+      </div>
+    </div>
+    <div id="vsResult" class="bdc-vs-result"></div>
+  </section>
+
+</main>
+
+<footer class="footer bdc-footer">
+  <div class="content has-text-centered">
+    <p>Blue Demon Cricket — Maine East High School</p>
+  </div>
+</footer>
+
+<!-- PLAYER MODAL -->
+<div class="modal" id="playerModal">
+  <div class="modal-background"></div>
+  <div class="modal-card bdc-modal-card">
+    <header class="modal-card-head">
+      <p class="modal-card-title" id="modalPlayerName">Player</p>
+      <button class="delete" aria-label="close" id="modalClose"></button>
+    </header>
+    <section class="modal-card-body" id="modalBody"></section>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
