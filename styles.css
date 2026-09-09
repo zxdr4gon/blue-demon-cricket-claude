@@ -19,6 +19,22 @@
   --shadow: 0 10px 30px rgba(10, 30, 70, 0.08);
 }
 
+/* Fixing text color in rows Light Mode */
+/* Custom striped row styling using your theme variables */
+.bdc-table.is-striped tbody tr:nth-child(even) {
+  background-color: var(--surface-alt);
+  color: var(--ink);
+}
+
+.bdc-table.is-striped tbody tr:nth-child(even) td {
+  color: var(--ink);
+}
+
+/* Ensure hover state maintains readable text */
+.bdc-table tbody tr:hover td {
+  color: var(--ink);
+}
+
 body.theme-dark {
   --bg: #061426;
   --surface: #0b1d34;
